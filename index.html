@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>House Price Prediction</title>
+<title>ML Prediction Website</title>
 </head>
 
 <body>
@@ -11,17 +11,34 @@
 <form action="/predict" method="post">
 
 Area:
-<input type="text" name="area"><br><br>
+<input type="number" name="area"><br><br>
 
-Bedrooms:
-<input type="text" name="bedrooms"><br><br>
+Rooms:
+<input type="number" name="rooms"><br><br>
 
-Bathrooms:
-<input type="text" name="bathrooms"><br><br>
+Age:
+<input type="number" name="age"><br><br>
+
+<h2>Feature Classification</h2>
+
+Feature 1:
+<input type="number" step="any" name="f1"><br><br>
+
+Feature 2:
+<input type="number" step="any" name="f2"><br><br>
+
+Feature 3:
+<input type="number" step="any" name="f3"><br><br>
+
+Feature 4:
+<input type="number" step="any" name="f4"><br><br>
 
 <input type="submit" value="Predict">
 
 </form>
+
+<h3>House Price: {{price}}</h3>
+<h3>Feature Class: {{Feature}}</h3>
 
 </body>
 </html>
