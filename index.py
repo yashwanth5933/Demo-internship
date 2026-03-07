@@ -1,36 +1,44 @@
-from flask import Flask, request, render_template
-import pandas as pd
-from sklearn.linear_model import LinearRegression
+import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline
+from sklearn.base import BaseEstimator, TransformerMixin
 
-app = Flask(__name__, template_folder="../templates")
+class FeatureEngineer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
 
-data = {
-    "area":[500,600,700,800,900],
-    "bedrooms":[2,3,3,4,4],
-    "bathrooms":[1,2,2,3,3],
-    "price":[200000,250000,300000,350000,400000]
-}
+    def transform(self, X):
+        bigness = (X[:,0] + X[:,2]) / 2
+        return np.column_stack([X, bigness])
 
-df = pd.DataFrame(data)
 
-X = df[['area','bedrooms','bathrooms']]
-y = df['price']
+pipeline = Pipeline([
+    ('features', FeatureEngineer()),
+    ('scale', StandardScaler()),
+    ('balance', SMOTE(random_state=42)),
+    ('model', RandomForestClassifier(random_state=42))
+])
 
-model = LinearRegression()
-model.fit(X,y)
+# Create dataset
+X, y = make_classification(n_samples=1000,n_features=4,n_informative=2,
+                           weights=[0.9,0.1],random_state=42)
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+pipeline.fit(X,y)
 
-@app.route("/predict",methods=["POST"])
-def predict():
-    area=float(request.form["area"])
-    bedrooms=float(request.form["bedrooms"])
-    bathrooms=float(request.form["bathrooms"])
+def predict_fruit(values):
+    values = np.array(values).reshape(1,-1)
+    result = pipeline.predict(values)
+    return int(result[0])
 
-    prediction=model.predict([[area,bedrooms,bathrooms]])
 
-    return f"Predicted Price: {prediction[0]}"
+def predict_house(area, rooms, age):
+    b = 10
+    m1 = 1000
+    m2 = 4
+    m3 = 3
+    price = b + m1*area + m2*rooms + m3*age
+    return price
 
-app = app
